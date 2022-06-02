@@ -1,3 +1,6 @@
 __pycache__
 .DS_Store
 config.ini
+.vscode
+image/a.png
+image/image

@@ -5,13 +5,15 @@ import configparser
 import logging
 
 from health_reporter import HealthReporter
+from info_reporter import InfoReporter
 from ustc_credential import UstcCredential
 
 FORMAT = "%(asctime)s  %(levelname)-8s  %(message)s"
 logging.basicConfig(level=logging.INFO, format=FORMAT)
 
+
 def parse_config(config_file):
-     # 读取配置文件
+    # 读取配置文件
     logging.info(f"读取配置文件 {config_file}")
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -27,7 +29,7 @@ def parse_config(config_file):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='USTC 健康自动上报')
+    parser = argparse.ArgumentParser(description="USTC 健康自动上报")
     parser.add_argument("--config", help="配置文件路径", default="config.ini")
     args = parser.parse_args()
 
@@ -43,12 +45,16 @@ if __name__ == "__main__":
     password = config["credential"]["password"]
 
     credential = UstcCredential(student_id, password)
-    reporter = HealthReporter(credential)
+    health_reporter = HealthReporter(credential)
+    info_reporter = InfoReporter(credential)
+
+    # 上传健康信息
+    info_reporter.report()
 
     # 读取上报信息
     health_info = dict(config["health"])
     # 信息上报
-    if reporter.report(health_info):
+    if health_reporter.report(health_info):
         exit(0)
     else:
         exit(-1)
