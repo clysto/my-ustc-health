@@ -1,16 +1,14 @@
+import json
 import logging
 import re
-import json
 import subprocess
 
 import requests
 
-from ustc_credential import UstcCredential
-
 
 class InfoReporter:
-    def __init__(self, credential: UstcCredential) -> None:
-        self.credential = credential
+    def __init__(self, session: requests.Session) -> None:
+        self.session = session
 
     def gen_image(self):
         p = subprocess.Popen(
@@ -23,19 +21,7 @@ class InfoReporter:
         p.communicate()
 
     def report(self):
-        session = requests.Session()
-        logging.info("使用学号和密码登陆")
-        try:
-            result = self.credential.login(
-                session,
-                "https://weixine.ustc.edu.cn/2020/upload/xcm",
-                "https://weixine.ustc.edu.cn/2020/caslogin",
-                "https://weixine.ustc.edu.cn/2020/upload/xcm",
-            )
-        except Exception as err:
-            logging.error(err)
-            return
-        logging.info("登陆成功")
+        result = self.session.get("https://weixine.ustc.edu.cn/2020/upload/xcm")
 
         match = re.finditer(r"_token:\s+'(.+)'", result.text)
         token = next(match)[1]
@@ -61,7 +47,7 @@ class InfoReporter:
         }
 
         logging.info("上传行程码")
-        result = session.post(
+        result = self.session.post(
             "https://weixine.ustc.edu.cn/2020img/api/upload_for_student",
             files=files,
             data=data,
@@ -71,5 +57,8 @@ class InfoReporter:
 
         if status["status"] is False:
             logging.error("上传行程码失败")
+            logging.info(status["message"])
+            return False
 
         logging.info(status["message"])
+        return True

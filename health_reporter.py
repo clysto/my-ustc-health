@@ -4,34 +4,20 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from ustc_credential import UstcCredential
-
 
 class HealthReporter:
-    def __init__(self, credential: UstcCredential) -> None:
-        self.credential = credential
+    def __init__(self, session: requests.Session) -> None:
+        self.session = session
 
     def report(self, health_info: dict):
-        session = requests.Session()
-        logging.info("使用学号和密码登陆")
-        try:
-            result = self.credential.login(
-                session,
-                "https://weixine.ustc.edu.cn/2020",
-                "https://weixine.ustc.edu.cn/2020/caslogin",
-                "https://weixine.ustc.edu.cn/2020/home",
-            )
-        except Exception as err:
-            logging.error(err)
-            return
-        logging.info("登陆成功")
+        result = self.session.get("https://weixine.ustc.edu.cn/2020")
 
         token = re.findall(r"name=\"_token\" value=\"(.+)\"", result.text)[0]
         health_info["_token"] = token
 
         logging.info("开始上报健康信息")
 
-        result = session.post(
+        result = self.session.post(
             "http://weixine.ustc.edu.cn/2020/daliy_report",
             data=health_info,
             headers={

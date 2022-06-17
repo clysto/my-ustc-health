@@ -4,6 +4,8 @@ import argparse
 import configparser
 import logging
 
+import requests
+
 from health_reporter import HealthReporter
 from info_reporter import InfoReporter
 from ustc_credential import UstcCredential
@@ -45,16 +47,42 @@ if __name__ == "__main__":
     password = config["credential"]["password"]
 
     credential = UstcCredential(student_id, password)
-    health_reporter = HealthReporter(credential)
-    info_reporter = InfoReporter(credential)
 
-    # 上传健康信息
-    info_reporter.report()
-
-    # 读取上报信息
-    health_info = dict(config["health"])
-    # 信息上报
-    if health_reporter.report(health_info):
-        exit(0)
-    else:
+    # 开始登录
+    session = requests.Session()
+    logging.info("使用学号和密码登陆")
+    try:
+        result = credential.login(
+            session,
+            "https://weixine.ustc.edu.cn/2020",
+            "https://weixine.ustc.edu.cn/2020/caslogin",
+            "https://weixine.ustc.edu.cn/2020/home",
+        )
+    except Exception as err:
+        logging.error("登录失败", err)
         exit(-1)
+    logging.info("登录成功")
+
+    health_reporter = HealthReporter(session)
+    info_reporter = InfoReporter(session)
+
+    info_try_count = 5
+    while info_try_count > 0:
+        # 上传健康信息
+        if info_reporter.report():
+            break
+        info_try_count -= 1
+
+    health_try_cout = 5
+    while health_try_cout > 0:
+        # 读取上报信息
+        health_info = dict(config["health"])
+        # 信息上报
+        if health_reporter.report(health_info):
+            break
+        health_try_cout -= 1
+
+    if health_try_cout == 0 or info_try_count == 0:
+        exit(-1)
+    else:
+        exit(0)
