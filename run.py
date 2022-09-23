@@ -8,6 +8,7 @@ import requests
 
 from health_reporter import HealthReporter
 from info_reporter import InfoReporter
+from leave_reporter import LeaveReporter
 from ustc_credential import UstcCredential
 
 FORMAT = "%(asctime)s  %(levelname)-8s  %(message)s"
@@ -65,6 +66,7 @@ if __name__ == "__main__":
 
     health_reporter = HealthReporter(session)
     info_reporter = InfoReporter(session)
+    leave_reporter = LeaveReporter(session)
 
     health_try_cout = 5
     while health_try_cout > 0:
@@ -82,7 +84,14 @@ if __name__ == "__main__":
             break
         info_try_count -= 1
 
-    if health_try_cout == 0 or info_try_count == 0:
+    leave_try_count = 5
+    while leave_try_count > 0:
+        # 出校报备
+        if leave_reporter.report():
+            break
+        leave_try_count -= 1
+
+    if health_try_cout == 0 or info_try_count == 0 or leave_try_count == 0:
         exit(-1)
     else:
         exit(0)

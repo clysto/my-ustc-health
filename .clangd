@@ -1,0 +1,19 @@
+CompileFlags:
+    Add: 
+        - -std=c11
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include/cairo
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include/glib-2.0
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/lib/glib-2.0/include
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include/pixman-1
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include/libxml2
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include/freetype2
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include/libpng16
+        - -I/usr/local/Caskroom/miniconda/base/envs/comm/include
+        - -L/usr/local/Caskroom/miniconda/base/envs/comm/lib
+        - -lfreetype
+        - -lcairo
+
